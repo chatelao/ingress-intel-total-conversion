@@ -83,8 +83,9 @@ window.plugin.portalslist.getPortals = function() {
 
     //get resonators informations
     var resonators = []; // my local resonator array : reso level, reso deployed by, distance to portal, energy total, max 
-    var energy = 0;
-    var maxenergy=0;
+    var energy    = 0;
+    var maxenergy = 0;
+    var totalmit  = 0;
     $.each(portal.options.details.resonatorArray.resonators, function(ind, reso) {
       if(reso) {
         resonators[ind] = [reso.level, window.getPlayerName(reso.ownerGuid), reso.distanceToPortal, reso.energyTotal, RESO_NRG[reso.level]];
@@ -97,13 +98,17 @@ window.plugin.portalslist.getPortals = function() {
 
     //get shield informations
     var shields = [];
+    totalmit = 0;
     $.each(d.portalV2.linkedModArray, function(ind, mod) {
       if (mod) {
-        //shields[ind] = mod.rarity.capitalize().replace('_', ' ');
-        shields[ind] = [mod.rarity.substr(0,1).capitalize(), getPlayerName(mod.installingUser)] ;
+        // shields[ind] = mod.rarity.capitalize().replace('_', ' ');
+        // shields[ind] = [mod.rarity.substr(0,1).capitalize(), getPlayerName(mod.installingUser)] ;
+        shields[ind] = [mod.stats.MITIGATION, getPlayerName(mod.installingUser)] ;
+        totalmit = totalmit + parseInt(mod.stats.MITIGATION);
       } else {
         shields[ind] = ['', ''];
-      }
+      }      
+    	shields[4] = [totalmit, ''];
     });
 
     var APgain= getAttackApGain(d).enemyAp;
@@ -199,6 +204,25 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       case 'r8':
         retVal = b.resonators[7][0] - a.resonators[7][0];
         break;
+      case 'sh':
+        retVal = a.shields[4][0] > b.shields[4][0] ? -1 : 1;
+        break;
+      case 's1':
+        retVal = a.shields[0][0] > b.shields[0][0] ? -1 : 1;
+        break;
+      case 's2':
+        retVal = a.shields[1][0] > b.shields[1][0] ? -1 : 1;
+        break;
+      case 's3':
+        retVal = a.shields[2][0] > b.shields[2][0] ? -1 : 1;
+        break;
+      case 's4':
+        retVal = a.shields[3][0] > b.shields[3][0] ? -1 : 1;
+        break;
+/*        
+      case 'sh':
+        retVal = a.shields[4].toLowerCase() > b.shields[4].toLowerCase() ? -1 : 1;
+        break;
       case 's1':
         retVal = a.shields[0].toLowerCase() > b.shields[0].toLowerCase() ? -1 : 1;
         break;
@@ -211,6 +235,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       case 's4':
         retVal = a.shields[3].toLowerCase() > b.shields[3].toLowerCase() ? -1 : 1;
         break;
+*/
       default:
         retVal = b[sortBy] - a[sortBy];
         break;
@@ -236,6 +261,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
   + '<th ' + sort('energy', sortBy, -1) + '>Energy</th>'
   + '<th ' + sort('energyratio', sortBy, -1) + '>%</th>'
   + '<th ' + sort('links', sortBy, -1) + '>Links</th>'
+  + '<th ' + sort('sh', sortBy, -1) + '>MIT</th>'
   + '<th ' + sort('s1', sortBy, -1) + '>S1</th>'
   + '<th ' + sort('s2', sortBy, -1) + '>S2</th>'
   + '<th ' + sort('s3', sortBy, -1) + '>S3</th>'
@@ -267,6 +293,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       html += '<td style="cursor:help" title="'+ portal.energy +'">' + prettyEnergy(portal.energy) + '</td>'
       + '<td style="cursor:help" title="' + portal.energy + ' / ' + portal.maxenergy +'">' + portal.energyratio + '%</td>'
       + '<td style="cursor:help" title="' + portal.links + '">' + portal.links + '</td>'
+      + '<td style="cursor:help" title="'+ portal.shields[4][1] +'">' + portal.shields[4][0] + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[0][1] +'">' + portal.shields[0][0] + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[1][1] +'">' + portal.shields[1][0] + '</td>'
       + '<td style="cursor:help" title="'+ portal.shields[2][1] +'">' + portal.shields[2][0] + '</td>'
